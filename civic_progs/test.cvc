@@ -1,0 +1,71 @@
+#include "core.cvc"
+#include "coreio.cvc"
+#include "array.cvc"
+#include "civic.h"
+
+export int main() {
+    int[5] scan_int_array;
+    int[5] int_array = [1, 2, 3, 4, 5];
+
+    float[5] scan_float_array; 
+    float[5] float_array = [1.0, 2.1, 3.2, 4.8, 5.7];
+    
+    int[2, 2] scan_int_matrix;
+    int[2, 2] int_mat = [[1, 2], [3, 4]];
+    
+    float[2, 2] scan_float_matrix;
+    float[2, 2] float_mat = [[0.0, 1.0], [1.0, 0.0]];
+
+    float[2, 2] result_float_matrix;
+
+    printInt(gcd(10, 35));
+    printNewlines(2);
+
+    printInt(fac(3));
+    printNewlines(2);
+    
+    printInt(fib(9));
+    printNewlines(2);
+    
+    printInt((int) isprime(5));
+    printNewlines(2);
+
+    fibs(20);
+    printNewlines(1);
+
+    primes(20);
+    printNewlines(1);
+
+    printIntVec(int_array);
+    printNewlines(1);
+
+    printFloatVec(float_array);
+    printNewlines(1);
+
+    printIntMat(int_mat);
+    printNewlines(1);
+
+    printFloatMat(float_mat);
+    printNewlines(1);
+
+    scanIntVec(scan_int_array);
+    printIntVec(scan_int_array);
+    printNewlines(1);
+
+    scanFloatVec(scan_float_array);
+    printFloatVec(scan_float_array);
+    printNewlines(1);
+
+    scanIntMat(scan_int_matrix);
+    printIntMat(scan_int_matrix);
+    printNewlines(1);
+
+    scanFloatMat(scan_float_matrix);
+    printFloatMat(scan_float_matrix);
+    printNewlines(1);
+
+    matMul(float_mat, scan_float_matrix, result_float_matrix);
+    printFloatMat(result_float_matrix);
+    printNewlines(1);
+    return 0;
+}

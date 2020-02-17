@@ -61,6 +61,7 @@ PHASE( mot,
        "My own transformations",
        ALWAYS)
 
+
 SUBPHASE( cbo, 
           "Count Binary Operators",
           CBOdoCountBinops, 
@@ -71,7 +72,7 @@ SUBPHASE( ci,
           "Count identifiers",
           CIdoCountIdentifiers, 
           ALWAYS,
-          mot)      
+          mot)
       
 ENDPHASE( mot) 
 

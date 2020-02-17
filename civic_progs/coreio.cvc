@@ -1,0 +1,42 @@
+export void fibs(int n) {
+    int count = 1;
+    while (count <= n) {
+        printInt(fib(count));
+        printSpaces(1);
+        count = count + 1;
+    }
+    printNewlines(1);
+}
+
+export void primes(int n) {
+    int count = 0;
+    int inc = 2;
+    
+    bool isprime(int n) {
+        int i = 5;
+        
+        if (n <= 3) {
+            return n > 1;
+        }
+        if (n % 2 == 0 || n % 3 == 0) {
+            return false;
+        }
+        
+        while (i * i <= n) {
+            if (n % i == 0 || n % (i + 2) == 0) {
+                return false;
+            }
+            i = i + 6;
+        }
+        return true;
+    }
+    while (count < n) {
+        if (isprime(inc)) {
+            printInt(inc);
+            printSpaces(1);
+            count = count + 1;
+        }
+        inc = inc + 1;        
+    }
+    printNewlines(1);
+}

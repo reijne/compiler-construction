@@ -22,11 +22,6 @@
 #include "memory.h"
 #include "ctinfo.h"
 
-
-/*
- * INFO structure
- */
-
 struct INFO {
   int count;
   int count_add;
@@ -36,11 +31,6 @@ struct INFO {
   int count_mod;
 };
 
-
-/*
- * INFO macros
- */
-
 #define INFO_COUNT(n)  ((n)->count)
 #define INFO_COUNT_ADD(n)  ((n)->count_add)
 #define INFO_COUNT_SUB(n)  ((n)->count_sub)
@@ -49,10 +39,7 @@ struct INFO {
 #define INFO_COUNT_MOD(n)  ((n)->count_mod)
 
 
-/*
- * INFO functions
- */
-
+/* Malloc and init the info struct */
 static info *MakeInfo(void)
 {
   info *result;
@@ -71,6 +58,7 @@ static info *MakeInfo(void)
   DBUG_RETURN( result);
 }
 
+/* Free the info struct. */
 static info *FreeInfo( info *info)
 {
   DBUG_ENTER ("FreeInfo");
@@ -80,11 +68,7 @@ static info *FreeInfo( info *info)
   DBUG_RETURN( info);
 }
 
-
-/*
- * Traversal functions
- */
-
+/* Binop node, contains a binary operator that need to be counted. */
 node *CBObinop (node *arg_node, info *arg_info)
 {
   DBUG_ENTER("CBObinop");
@@ -117,6 +101,7 @@ node *CBObinop (node *arg_node, info *arg_info)
   DBUG_RETURN(arg_node);
 }
 
+/* Root node, starts traversal and stores the found information at the end. */
 node *CBOmodule (node *arg_node, info *arg_info)
 {
   DBUG_ENTER("CBObinop");
@@ -135,11 +120,7 @@ node *CBOmodule (node *arg_node, info *arg_info)
   DBUG_RETURN( arg_node);
 }
 
-
-/*
- * Traversal start function
- */
-
+/* Traversal start function. */
 node *CBOdoCountBinops( node *syntaxtree)
 {
   info *arg_info;
@@ -151,8 +132,7 @@ node *CBOdoCountBinops( node *syntaxtree)
   TRAVpush(TR_cbo);
   syntaxtree = TRAVdo( syntaxtree, arg_info);
   TRAVpop();
-
-  CTInote( "Number of binary operators: %d", INFO_COUNT( arg_info));
+  // CTInote( "Number of binary operators: %d", INFO_COUNT( arg_info));
 
   arg_info = FreeInfo( arg_info);
 

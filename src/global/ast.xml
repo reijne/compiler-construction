@@ -71,6 +71,7 @@
         <travuser>
           <node name="Var" />
           <node name="VarLet" />
+          <node name="Module" />
         </travuser>
       </traversal>
 

@@ -70,6 +70,7 @@ node *
 PRTmodule (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTmodule");
+  DBUG_PRINT("CI", ("printing the module"));
 
   MODULE_STMTS( arg_node) = TRAVdo( MODULE_STMTS( arg_node), arg_info);
   
@@ -78,7 +79,7 @@ PRTmodule (node * arg_node, info * arg_info)
   printf("\t\t\n - : %d", MODULE_COUNT_SUB(arg_node));
   printf("\t\t\n * : %d", MODULE_COUNT_MUL(arg_node));
   printf("\t\t\n / : %d", MODULE_COUNT_DIV(arg_node));
-  printf("\t\t\n %% : %d", MODULE_COUNT_MOD(arg_node));
+  printf("\t\t\n %% : %d\n", MODULE_COUNT_MOD(arg_node));
   
   DBUG_RETURN (arg_node);
 }
@@ -87,6 +88,7 @@ node *
 PRTstmts (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTstmts");
+  DBUG_PRINT("CI", ("printing the stmts"));
 
   STMTS_STMT( arg_node) = TRAVdo( STMTS_STMT( arg_node), arg_info);
   
