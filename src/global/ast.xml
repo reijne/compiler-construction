@@ -17,6 +17,7 @@
     <type name="Bool" ctype="bool" init="FALSE" copy="literal" />
     <type name="Float" ctype="float" init="0.0" copy="literal" />
     <type name="BinOp" ctype="binop" init="BO_unknown" copy="literal" />
+    <type name="MonOp" ctype="monop" init="MO_unknown" copy="literal" />
     <type name="Link" ctype="node*" init="NULL" copy="lookup" />
     <type name="CompilerPhase" ctype="compiler_phase_t" init="PH_initial" copy="literal" />
   </attributetypes>
@@ -50,7 +51,7 @@
 
       <traversal id="SI" name="Sum ins" default="sons" include="sum_ints.h">
         <travuser>
-          <node name="Num" />
+          <node name="Int" />
         </travuser>
       </traversal>
 
@@ -86,6 +87,7 @@
     <nodeset name="Expr">
       <target>
         <node name="BinOp" />
+        <node name="MonOp" />
         <node name="Var" />
         <node name="Num" />
         <node name="Float" />
@@ -95,6 +97,34 @@
     <nodeset name="Stmt">
       <target>
         <node name="Assign" />
+        <node name="If"/>
+        <node name="While"/>
+        <node name="DoWhile"/>
+        <node name="For"/>
+        <node name="Return"/>
+      </target>
+    </nodeset>
+    <nodeset name="Declaration">
+      <target>
+        <node name="FunDec" />
+        <node name="FunDef" />
+        <node name="GlobalDec" />
+        <node name="GlobalDef" />
+      </target>
+    </nodeset>
+    <nodeset name="Type">
+      <target>
+        <node name="Num" />
+        <node name="Float" />
+        <node name="Bool" />
+      </target>
+    </nodeset>
+    <nodeset name="RetType">
+      <target>
+        <node name="Void" />
+        <node name="Num" />
+        <node name="Float" />
+        <node name="Bool" />
       </target>
     </nodeset>
   </nodesets>
@@ -105,16 +135,16 @@
 
   <syntaxtree>
 <!--
-  Node Module:
+  Node Program:
 -->
-    <node name="Module">
-    <description>Topmost node which holds a integer value</description>
+    <node name="Program">
+    <description>Entire Program, root node of AST</description>
     <sons>
-      <son name="Stmts">
-      <description>Child of the topmost node</description>
+      <son name="Declarations">
+      <description>One or many declarations</description>
         <targets>
           <target mandatory="yes">
-            <node name="Stmts" />
+            <node name="Declarations" />
               <phases>
                 <all />
               </phases>
@@ -123,78 +153,611 @@
       </son>
     </sons>
     <attributes>
-      <attribute name="Count_all">
-        <type name="Int">
-          <targets>
-            <target mandatory="yes">
-                <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </type>
-      </attribute>
-      <attribute name="Count_add">
-        <type name="Int">
-          <targets>
-            <target mandatory="yes">
-                <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </type>
-      </attribute>
-      <attribute name="Count_sub">
-        <type name="Int">
-          <targets>
-            <target mandatory="yes">
-                <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </type>
-      </attribute>
-      <attribute name="Count_mul">
-        <type name="Int">
-          <targets>
-            <target mandatory="yes">
-                <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </type>
-      </attribute>
-      <attribute name="Count_div">
-        <type name="Int">
-          <targets>
-            <target mandatory="yes">
-                <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </type>
-      </attribute>
-      <attribute name="Count_mod">
-        <type name="Int">
-          <targets>
-            <target mandatory="yes">
-                <phases>
-                <all />
-              </phases>
-            </target>
-          </targets>
-        </type>
-      </attribute>
     </attributes>
   </node>
 <!--
+ Node Declarations:
+-->
+    <node name="Declarations">
+      <description>represents (sequence of) declaration(s)</description>
+      <sons>
+        <son name="Declaration">
+        <description>Mandetory declaration</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Declaration" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Declarations">
+        <description>remaining optional declaration(s)</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Declarations" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+  Node Module:
+-->
+    <node name="Module">
+      <description>Topmost node which holds an integer value</description>
+      <sons>
+        <son name="Stmts">
+        <description>Child of the topmost node</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Stmts" />
+                <phases>
+                  <all />
+                </phases>
+              </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+        <attribute name="Count_all">
+          <type name="Int">
+            <targets>
+              <target mandatory="yes">
+                  <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Count_add">
+          <type name="Int">
+            <targets>
+              <target mandatory="yes">
+                  <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Count_sub">
+          <type name="Int">
+            <targets>
+              <target mandatory="yes">
+                  <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Count_mul">
+          <type name="Int">
+            <targets>
+              <target mandatory="yes">
+                  <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Count_div">
+          <type name="Int">
+            <targets>
+              <target mandatory="yes">
+                  <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+        <attribute name="Count_mod">
+          <type name="Int">
+            <targets>
+              <target mandatory="yes">
+                  <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+      </attributes>
+    </node>
+<!--
+ Node FunDec:
+-->
+    <node name="FunDec">
+      <description>Declaration of a function</description>
+      <sons>
+        <son name="Keyword">
+        <description>extern keyword</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Extern" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="FunHeader">
+        <description>Header of a function</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="FunHeader" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Semicolon">
+        <description>Semicolon</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Semicolon" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node Extern:
+-->
+   <node name="Extern">
+      <description>represents the extern keyword</description>
+      <sons>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node Semicolon:
+-->
+   <node name="Semicolon">
+      <description>represents the semicolon</description>
+      <sons>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node FunDef:
+-->
+    <node name="FunDef">
+      <description>Declaration of a function</description>
+      <sons>
+        <son name="Keyword">
+        <description>export keyword</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Export" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="FunHeader">
+        <description>Header of a function</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="FunHeader" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="FunBodyBlock">
+        <description>Body of a function with brackets</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="FunBodyBlock" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node FunBodyBlock:
+-->
+    <node name="FunBodyBlock">
+      <description>Function body with curly brackets</description>
+      <sons>
+        <son name="L_curly_bracket">
+        <description>Left curly bracket</description>
+          <targets>
+            <target mandatory="no">
+              <node name="L_curly_bracket" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="FunBody">
+        <description>Body of a function</description>
+          <targets>
+            <target mandatory="no">
+              <node name="FunBody" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="R_curly_bracket">
+        <description>Left curly bracket</description>
+          <targets>
+            <target mandatory="no">
+              <node name="R_curly_bracket" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node L_curly_bracket:
+-->
+   <node name="L_curly_bracket">
+      <description>represents the left curly bracket</description>
+      <sons>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node R_curly_bracket:
+-->
+   <node name="R_curly_bracket">
+      <description>represents the right curly bracket</description>
+      <sons>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node L_bracket:
+-->
+   <node name="L_bracket">
+      <description>represents the left bracket</description>
+      <sons>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node R_bracket:
+-->
+   <node name="R_bracket">
+      <description>represents the right bracket</description>
+      <sons>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node Comma:
+-->
+   <node name="Comma">
+      <description>represents the comma</description>
+      <sons>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node FunHeader:
+-->
+    <node name="FunHeader">
+      <description>Header of a function</description>
+      <sons>
+        <son name="RetType">
+        <description>Type a function returns</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="RetType" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Id">
+        <description>Name of a function</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="FunHeader" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="L_bracket">
+        <description>Left round bracket</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Export" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Params">
+        <description>Left round bracket</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Params" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="R_bracket">
+        <description>Right round bracket</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Export" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node Params:
+-->
+    <node name="Params">
+      <description>represents (sequence of) parameters</description>
+      <sons>
+        <son name="Param">
+        <description>First parameter (in sequence)</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Param" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Comma">
+        <description>Comma seperator</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Comma" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Params">
+        <description>remaining parameters in sequence</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Params" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node Param:
+-->
+    <node name="Param">
+      <description>Represents a parameter</description>
+      <sons>
+        <son name="RetType">
+        <description>Type a function returns</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="RetType" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Id">
+        <description>Type a function returns</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Id" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node Id:
+-->
+    <node name="Id">
+      <description>Represents an Id</description>
+      <sons>
+      </sons>
+      <attributes>
+        <attribute name="Id">
+        <description>Identifier of parameter</description>
+          <type name="String">
+            <targets>
+              <target mandatory="yes">
+                <phases>
+                  <all />
+                </phases>
+               </target>
+            </targets>
+          </type>
+        </attribute>
+      </attributes>
+    </node>
+<!--
+ Node GlobalDec:
+-->
+    <node name="GlobalDec">
+      <description>Global declaration of identifier</description>
+      <sons>
+        <son name="Extern">
+        <description>Extern keyword</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Extern" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Type">
+        <description>Type of identifier</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Type" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Id">
+        <description>Name of identifier</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Id" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Semicolon">
+        <description>Semicolon</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Semicolon" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
+ Node GlobalDef:
+-->
+    <node name="GlobalDef">
+      <description>Global definition of identifier</description>
+      <sons>
+        <son name="Export">
+        <description>Export keyword</description>
+          <targets>
+            <target mandatory="no">
+              <node name="Export" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Type">
+        <description>Type of identifier</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Type" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Id">
+        <description>Name of identifier</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Id" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Expr">
+        <description>Identifier expression</description>
+          <targets>
+            <target mandatory="no">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+        <son name="Semicolon">
+        <description>Semicolon</description>
+          <targets>
+            <target mandatory="yes">
+              <node name="Semicolon" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+      </attributes>
+    </node>
+<!--
  Node Stmts:
 -->
-     <node name="Stmts">
+    <node name="Stmts">
       <description>represents (sequence of) statements</description>
       <sons>
         <son name="Stmt">
@@ -226,7 +789,7 @@
 <!--
  Node Assign:
 -->
-     <node name="Assign">
+    <node name="Assign">
       <description>represents assignment statement</description>
       <sons>
         <son name="Let">
@@ -290,6 +853,40 @@
         <description>operator type</description>
         <attribute name="Op">
           <type name="BinOp">
+            <targets>
+              <target mandatory="yes">
+                <any />
+                <phases>
+                  <all />
+                </phases>
+              </target>
+            </targets>
+          </type>
+        </attribute>
+      </attributes>
+    </node>
+<!--
+ Node MonOp:
+-->
+    <node name="MonOp">
+      <description>represents mono operator application</description>
+      <sons>
+        <son name="Right">
+        <description>right operand expression</description>
+          <targets>
+            <target mandatory="yes">
+              <set name="Expr" />
+                <phases>
+                  <all />
+                </phases>
+             </target>
+          </targets>
+        </son>
+      </sons>
+      <attributes>
+        <description>operator type</description>
+        <attribute name="Op">
+          <type name="MonOp">
             <targets>
               <target mandatory="yes">
                 <any />

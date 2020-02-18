@@ -85,6 +85,33 @@ PRTmodule (node * arg_node, info * arg_info)
 }
 
 node *
+PRTmonop (node * arg_node, info * arg_info) {
+    char *tmp;
+
+  DBUG_ENTER ("PRTmonop");
+
+  switch (MONOP_OP( arg_node)) {
+    case MO_neg:
+      tmp = "-";
+      break;
+    case MO_not:
+      tmp = "!";
+      break;
+    case MO_unknown:
+      DBUG_ASSERT( 0, "unknown monop detected!");
+    }
+    printf( "( ");
+    printf( " %s ", tmp);
+
+    MONOP_RIGHT( arg_node) = TRAVdo( MONOP_RIGHT( arg_node), arg_info);
+
+    printf( ")");
+
+    DBUG_RETURN (arg_node);
+}
+
+
+node *
 PRTstmts (node * arg_node, info * arg_info)
 {
   DBUG_ENTER ("PRTstmts");
@@ -167,7 +194,7 @@ PRTbinop (node * arg_node, info * arg_info)
       tmp = "/";
       break;
     case BO_mod:
-      tmp = "%";
+      tmp = "%%";
       break;
     case BO_lt:
       tmp = "<";
